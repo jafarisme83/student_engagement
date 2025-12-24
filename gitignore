@@ -1,0 +1,36 @@
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large files
+# *.h5  <- COMMENTED OUT: We want to track model files
+# *.pkl <- COMMENTED OUT: We want to track scaler files
+*.pth
+
+# Environment variables
+.env
+.env.local
+
+# Streamlit cache
+.streamlit/
