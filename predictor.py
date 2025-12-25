@@ -2,12 +2,44 @@ import numpy as np
 import pickle
 from tensorflow.keras.models import load_model
 
+# TAMBAHKAN DI AWAL FILE (setelah imports)
+from tensorflow.keras import layers
+import tensorflow as tf
+
+class AdditiveAttention(layers.Layer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+    
+    def build(self, input_shape):
+        self.units = input_shape[-1]
+        self.W1 = self.add_weight(name='W1', shape=(input_shape[-1], self.units), 
+                                  initializer='glorot_uniform', trainable=True)
+        self.W2 = self.add_weight(name='W2', shape=(input_shape[-1], self.units),
+                                  initializer='glorot_uniform', trainable=True)
+        self.V = self.add_weight(name='V', shape=(self.units, 1),
+                                 initializer='glorot_uniform', trainable=True)
+        super().build(input_shape)
+    
+    def call(self, inputs):
+        score = tf.nn.tanh(tf.matmul(inputs, self.W1) + 
+                           tf.expand_dims(tf.matmul(inputs, self.W2), 1))
+        weights = tf.nn.softmax(tf.matmul(score, self.V), axis=1)
+        context = tf.reduce_sum(inputs * weights, axis=1)
+        return context, weights
+    
+    def get_config(self):
+        return super().get_config()
+
+
 class EngagementPredictor:
     """Make predictions using trained model"""
     
     def __init__(self, model_path='models/engagement_model.h5'):
         """Load model"""
-        self.model = load_model(model_path)
+        self.model = load_model(
+    model_path,
+    custom_objects={'AdditiveAttention': AdditiveAttention}
+)
     
     def predict(self, X_behav_seq, X_vis=None):
         """
